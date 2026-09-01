@@ -1,8 +1,8 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends
 
-from app.db.session import check_database_connection, get_db_session
+from app.db.session import get_db_session
 
 router = APIRouter(tags=["system"])
 
@@ -13,7 +13,8 @@ async def health() -> dict[str, str]:
 
 
 @router.get("/ready", status_code=status.HTTP_200_OK)
-async def readiness(_: AsyncSession = Depends(get_db_session)) -> dict[str, str]:
-    if not await check_database_connection():
-        return {"status": "not_ready"}
+async def readiness(
+    session: AsyncSession = Depends(get_db_session),
+) -> dict[str, str]:
+    await session.execute(text("SELECT 1"))
     return {"status": "ready"}

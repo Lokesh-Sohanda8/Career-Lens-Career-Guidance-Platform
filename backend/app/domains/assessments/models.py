@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -153,7 +153,7 @@ class AssessmentResult(Base):
         UUID(as_uuid=True), ForeignKey("assessment_sessions.id", ondelete="CASCADE"), unique=True, nullable=False, index=True
     )
     scoring_version: Mapped[str] = mapped_column(String(50), nullable=False)
-    result_payload: Mapped[dict] = mapped_column(nullable=False)
+    result_payload: Mapped[dict] = mapped_column(JSON, nullable=False)
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
