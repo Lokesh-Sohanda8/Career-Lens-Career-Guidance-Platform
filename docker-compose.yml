@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: careerlens
+      POSTGRES_USER: careerlens
+      POSTGRES_PASSWORD: careerlens
+    ports:
+      - "5432:5432"
+    volumes:
+      - careerlens_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerlens -d careerlens"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://careerlens:careerlens@db:5432/careerlens
+      ENVIRONMENT: development
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      ALLOWED_ORIGINS: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  careerlens_postgres:
